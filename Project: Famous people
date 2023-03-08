@@ -1,0 +1,75 @@
+/* Create table about the people and what they do here */
+
+CREATE TABLE famousp (id INTEGER PRIMARY KEY AUTOINCREMENT, fullname TEXT, age INTEGER, profesion TEXT);
+
+INSERT INTO famousp (fullname,age,profesion) VALUES ("Angelina Jolie","47","actress");
+INSERT INTO famousp (fullname,age,profesion) VALUES ("lionel messi","35","futboll player");
+INSERT INTO famousp (fullname,age,profesion) VALUES ("Robyn Rihanna","35","singer");
+INSERT INTO famousp (fullname,age,profesion) VALUES ("Brandon Boyd","47","singer");
+INSERT INTO famousp (fullname,age,profesion) VALUES ("Dwayne Johnson","50","actor");
+INSERT INTO famousp (fullname,age,profesion) VALUES ("Rakim Athelaston","35","singer");
+
+SELECT * FROM famousp;
+
+CREATE TABLE personal_info (id INTEGER PRIMARY KEY AUTOINCREMENT, star_id TEXT, status TEXT, type TEXT, projects_name TEXT);
+
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (1,"single","movie","eternals");
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (1,"single","movie","malefica");
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (5,"married","movie","blackadam");
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (5,"married","movie","Red Notice");
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (2,"married","masive event","world cup");
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (3,"married","songs","umbrella");
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (3,"married","songs","stay");
+INSERT INTO personal_info (star_id,status,type,projects_name) VALUES (6,"married","songs","asap forever");
+
+SELECT * FROM personal_info;
+
+CREATE TABLE friends (id INTEGER PRIMARY KEY AUTOINCREMENT, name_id1 INTEGER,name_id2 INTEGER);
+
+
+INSERT INTO friends (name_id1, name_id2)
+VALUES(3, 4);
+INSERT INTO friends (name_id1, name_id2)
+VALUES(1, 6);
+INSERT INTO friends (name_id1, name_id2)
+VALUES(1, 2);
+
+/*see all the projects of each famous person*/
+
+SELECT famousp.fullname,personal_info.projects_name FROM famousp
+LEFT OUTER JOIN personal_info
+ON famousp.id =personal_info.star_id;
+
+/* status of the artis +40 years*/
+
+SELECT famousp.fullname,personal_info.status FROM famousp
+LEFT OUTER JOIN personal_info
+ON famousp.id =personal_info.star_id
+WHERE age >40
+GROUP BY famousp.fullname;
+
+/*see the songs of the singers and the name*/
+
+SELECT personal_info.projects_name,famousp.fullname FROM famousp
+JOIN personal_info
+ON famousp.id =personal_info.star_id
+WHERE type = "songs";
+
+/*see the type of project from, name, profesion and ID of each famous*/
+
+SELECT COUNT(personal_info.type),personal_info.type,famousp.fullname,famousp.profesion,famousp.id FROM famousp
+JOIN personal_info
+ON famousp.id =personal_info.star_id
+GROUP BY famousp.fullname;
+
+/* PAIRS OF FRIENDS*/
+
+SELECT a.fullname, b.fullname from friends
+JOIN famousp a
+ON friends.name_id1 = a.id
+JOIN famousp b
+ON friends.name_id2 = b.id;
+
+
+
+
