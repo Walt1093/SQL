@@ -1,0 +1,112 @@
+
+
+--What columns are in the customers table?
+SELECT * FROM BIT_DB.customers LIMIT 20;
+--What columns are in the JanSales table?
+SELECT * FROM BIT_DB.JanSales LIMIT 20;
+
+SELECT * FROM BIT_DB.customers
+WHERE length(order_id) = 6
+AND order_id <> 'Order ID';
+
+--How many orders were placed in January?
+SELECT COUNT(orderid) 
+FROM BIT_DB.JanSales
+WHERE length(orderid) = 6 
+AND orderid <> 'Order ID'
+
+--How many of those orders were for an iPhone?
+SELECT COUNT(orderid) 
+FROM BIT_DB.JanSales
+WHERE length(orderid) = 6 
+AND orderid <> 'Order ID'
+AND Product = 'iPhone';
+
+--Select the customer account numbers for all the orders that were placed in February.
+SELECT DISTINCT customers.acctnum FROM BIT_DB.customers
+JOIN BIT_DB.FebSales
+ON customers.order_id = FebSales.orderID 
+WHERE orderID IS NOT NULL
+AND orderID <> '' AND 
+orderID <> 'Order ID'
+ORDER BY acctnum ASC;
+
+--Which product was the cheapest one sold in January, and what was the price?
+SELECT janSales.Product, MIN(price) FROM BIT_DB.JanSales;
+
+
+--What is the total revenue for each product sold in January? (Revenue can be calculated using the number of products sold and the price of the products).
+SELECT SUM (quantity)*price AS Revenue 
+, product
+FROM BIT_DB.JanSales
+WHERE orderID IN (
+SELECT orderID FROM BIT_DB.customers 
+WHERE length(order_id) = 6
+AND order_id <> 'Order ID'
+AND orderID <> '') 
+GROUP BY product;
+
+--Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue?
+
+SELECT product,SUM (quantity)*price AS Revenue, SUM (quantity) AS sold
+FROM BIT_DB.FebSales
+WHERE location = '548 Lincoln St, Seattle, WA 98101'
+GROUP BY product;
+
+--How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers?
+
+select 
+count(distinct cust.acctnum), 
+avg(quantity*price)
+FROM BIT_DB.FebSales Feb
+LEFT JOIN BIT_DB.customers cust
+ON FEB.orderid=cust.order_id
+WHERE Feb.Quantity>2
+AND length(orderid) = 6 
+AND orderid <> 'Order ID';
+
+---orders made on 02/13/19 to 02/15/19. its a filter for the orders of those dates.
+SELECT orderdate
+FROM BIT_DB.FebSales
+WHERE orderdate between '02/13/19 00:00' AND '02/18/19 00:00';
+
+--- its showing the location of the orders made in 02/18/19
+SELECT location
+FROM BIT_DB.FebSales 
+WHERE orderdate = '02/18/19 01:35';
+
+-- its a sum of all the quantity of product in 02/15/19
+SELECT sum(quantity)
+FROM BIT_DB.FebSales 
+WHERE orderdate like '02/18/19%';
+
+SELECT distinct Product
+FROM BIT_DB.FebSales
+WHERE Product like '%Batteries%';
+
+SELECT distinct Product, Price
+FROM BIT_DB.FebSales 
+WHERE Price like '%.99';
+
+
+--List all the products sold in Los Angeles in February, and include how many of each were sold.
+
+SELECT distinct Product, SUM(febSales.Quantity)
+FROM BIT_DB.FebSales
+WHERE location LIKE '%Angeles%'
+GROUP BY product;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
