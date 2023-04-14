@@ -139,3 +139,14 @@ JOIN chinook.tracks TR
 ON TR.TrackId = INV.InvoiceId
 GROUP BY SONG
 ORDER BY CM.FirstName;
+
+-- Albums by artist 
+
+SELECT AR.NAME AS artistname, AB.Title AS albumrec 
+FROM chinook.artists AR
+JOIN chinook.albums AB 
+ON AB.ArtistId = AR.ArtistId
+GROUP BY albumrec
+ORDER BY artistname;
+
+
