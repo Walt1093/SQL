@@ -1,0 +1,141 @@
+##In this query I worked with a digital media store and includes tables for artists, albums, media tracks, invoices, and customers.
+
+-- Customers (their full names, customer ID, and country) who are not in the US.
+SELECT CustomerId,FirstName,LastName,Country FROM chinook.customers
+Where Country != 'USA';
+
+-- Customers from Brazil.
+SELECT CustomerId,FirstName,LastName,Country FROM chinook.customers
+Where Country = 'Brazil';
+
+--Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country.
+
+SELECT invoices.InvoiceId, invoices.InvoiceDate,invoices.BillingCountry, customers.FirstName,customers.LastName
+FROM chinook.invoices
+JOIN chinook.customers 
+ON invoices.CustomerId = customers.CustomerId
+WHERE invoices.BillingCountry = 'Brazil'
+ORDER BY customers.FirstName, customers.LastName ASC;
+
+--Show the Employees who are Sales Agents.
+SELECT * FROM chinook.employees
+WHERE Title like '%Agent%';
+
+--Find a unique/distinct list of billing countries from the Invoice table.
+
+SELECT DISTINCT invoices.BillingCountry 
+FROM chinook.invoices
+ORDER BY invoices.BillingCountry ASC;
+
+--Provide a query that shows the invoices associated with each sales agent. The resulting table should include the Sales Agent's full name.
+SELECT emp.LastName, emp.Firstname, inv.InvoiceId
+FROM chinook.Employees emp 
+JOIN chinook.Customers cust ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.Invoices Inv ON Inv.CustomerId = cust.CustomerId;
+
+
+--Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
+
+SELECT emp.LastName, emp.Firstname, cust.FirstName, cust.LastName, cust.Country, inv.total
+FROM chinook.employees emp 
+JOIN chinook.Customers cust ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.Invoices Inv ON Inv.CustomerId = cust.CustomerId;
+
+
+--How many Invoices were there in 2009?
+SELECT COUNT(*) 
+FROM chinook.invoices
+WHERE InvoiceDate BETWEEN '2009-01-01' AND '2009-12-31';
+
+--What are the total sales for 2009?
+
+SELECT ROUND(SUM(Total)) 
+FROM chinook.invoices
+WHERE InvoiceDate BETWEEN '2009-01-01' AND '2009-12-31';
+
+--Write a query that includes the purchased track name with each invoice line ID
+
+select TR.Name, INV.InvoiceLineId
+from chinook.tracks TR
+JOIN chinook.invoice_items INV
+ON TR.TrackId = INV.TrackId;
+
+--Write a query that includes the purchased track name AND artist name with each invoice line ID.
+
+select TR.Name,ART.name,INV.InvoiceLineId
+from chinook.tracks TR
+JOIN chinook.invoice_items INV ON TR.TrackId = INV.TrackId
+JOIN chinook.albums ALB ON ALB.Albumid = TR.Albumid
+JOIN chinook.artists ART ON ART.ArtistId = ALB.ArtistId;
+
+--Provide a query that shows all the Tracks, and include the Album name, Media type, and Genre.
+
+SELECT TR.Name AS track, AB.Title AS ALBUM ,MT.Name AS mediaType ,GR.Name AS Genre
+FROM chinook.tracks TR
+JOIN 
+SELECT emp.LastName, emp.Firstname, cust.FirstName, cust.LastName, cust.Country, inv.total
+FROM chinook.employees emp 
+JOIN chinook.Customers cust ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.Invoices Inv ON Inv.CustomerId = cust.CustomerId;.albums AB ON AB.Albumid = TR.AlbumId
+JOIN chinook.media_types MT ON MT.MediaTypeId = TR.MediaTypeid
+JOIN chinook.genres GR ON GR.GenreId = TR.GenreId;
+
+--Show the total sales made by each sales agent.
+
+SELECT ROUND(SUM(INV.Total),2) AS Total_SALES,EMP.FirstName,EMP.LastName,EMP.Title
+FROM chinook.employees EMP
+JOIN chinook.customers CM 
+ON CM.SupportRepId = EMP.EmployeeId
+JOIN chinook.invoices INV  
+ON INV.CustomerId = CM.CustomerId
+WHERE EMP.Title = 'Sales Support Agent'
+GROUP BY EMP.FirstName;
+
+--Which sales agent made the most dollars in sales in 2009?
+
+SELECT ROUND(SUM(INV.Total),2) AS Total_SALES,EMP.FirstName,EMP.LastName,EMP.Title
+FROM chinook.employees EMP
+JOIN chinook.customers CM 
+ON CM.SupportRepId = EMP.EmployeeId
+JOIN chinook.invoices INV  
+ON INV.CustomerId = CM.CustomerId
+WHERE EMP.Title = 'Sales Support Agent'
+AND inv.InvoiceDate BETWEEN '2009-01-01' AND '2009-12-31'
+GROUP BY EMP.FirstName
+ORDER BY Total_SALES DESC
+LIMIT 1;
+
+-- Wich album is related to the track in each playlist (track name, album name, playlist name) 
+
+SELECT PLY.name AS Playlist_name,TR.name AS Song, ALB.title AS Album
+FROM chinook.playlists PLY
+JOIN chinook.playlist_track PLYT
+ON PLYT.PlaylistId = PLY.PlaylistId
+JOIN chinook.tracks TR
+ON TR.TrackId = PLYT.TrackId 
+JOIN chinook.albums ALB
+ON ALB.AlbumId = TR.AlbumId
+GROUP BY Song
+ORDER BY Playlist_name;
+
+-- Total of tracks in each genre 
+
+SELECT GN.NAME AS GEN, ROUND(COUNT(TR.Name)) AS averagetrack
+FROM chinook.genres GN
+JOIN chinook.tracks TR
+ON TR.GenreId = GN.GenreId
+GROUP BY GN.Name
+ORDER BY averagetrack DESC; 
+
+-- tracks buyed by customer 
+
+SELECT CM.FirstName,CM.LastName, TR.Name AS SONG
+FROM chinook.customers CM
+JOIN chinook.invoices INV 
+ON INV.CustomerId = CM.CustomerId 
+JOIN chinook.invoice_items INVT
+ON INVT.InvoiceId = INV.InvoiceId 
+JOIN chinook.tracks TR 
+ON TR.TrackId = INV.InvoiceId
+GROUP BY SONG
+ORDER BY CM.FirstName;
