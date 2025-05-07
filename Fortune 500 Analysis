@@ -60,65 +60,47 @@ VALUES
 
 #Analysis
 
---which industry has the most revenue 
-SELECT ROUND(SUM (revenue),2) AS total_rev,industry
+# The three companies with 100k employees but the lowest  tenure and show the tenure 
+
+SELECT company_name
+, avg_employee_tenure
+FROM fortune_companies
+WHERE 
+employees > 100000
+ORDER BY avg_employee_tenure ASC
+LIMIT 3;
+
+
+# How many employees are for industry and show the avg time off by industry. 
+
+SELECT industry
+, SUM (employees) AS total_employee_by_industry
+, ROUND (AVG (paid_time_off_days)) AS avg_paid_offdays
 FROM fortune_companies
 GROUP BY industry
-ORDER BY total_rev DESC;
+ORDER BY total_employee_by_industry DESC;  
 
---list of Companies with more than 20K employees and ordered by the largest to the smallest  
-SELECT industry, SUM(employees) AS total_employees
-FROM fortune_companies
-GROUP BY industry
-HAVING total_employees >=20000
-ORDER BY total_employees DESC;
+# ssign all the companies a risk control based on their revenue into "solid", "succesufull","low risk", "high risk". 
 
---Which companies have healthcare benefits *and* at least 20 paid time off days *and* a minimun of 12 weeks of maternity leave?
-SELECT company_name,industry,employees,healthcare_benefits
-,paid_time_off_days
-,maternity_leave_weeks
-FROM fortune_companies
-WHERE healthcare_benefits >=1
-AND maternity_leave_weeks >= 12
-AND paid_time_off_days >= 20
-ORDER BY employees DESC;
-
--- Wich companies have more than 300 in revenue OR more than an avg of 7 in avg TENURE
-SELECT * 
-FROM fortune_companies
-WHERE revenue >300
-OR avg_employee_tenure >= 7
-ORDER BY revenue DESC;
-
--- Case assignation of companies with high incomes in revenue as "high income", "mid income", "low income" and "limited income"
-
-SELECT company_name,industry,revenue,
-CASE WHEN revenue >= 500 THEN "high income" 
-WHEN revenue >=300 THEN "Mid income"
-WHEN revenue >= 200 THEN "low income"
-ELSE "limited income" 
-END AS value
+SELECT company_name, revenue
+, CASE 
+WHEN revenue >= 500 THEN "solid"
+WHEN revenue >= 350 THEN "succesufull"
+WHEN revenue >= 200 THEN "controlled"
+WHEN revenue >= 150 THEN "low risk"
+ELSE "high risk" 
+END AS risk_class
 FROM fortune_companies
 ORDER BY revenue DESC;
 
---Wich company has the *max* in tenure of employees and the company with more employees
-SELECT MAX(avg_employee_tenure) AS max_tenure, company_name,employees
-FROM fortune_companies;
+# Which industries have healthcare and the AVG of maternityleave weeks over 10
 
-SELECT MAX(employees),company_name,employees
-FROM fortune_companies;
-
--- The average of employees per industry. 
-SELECT ROUND(AVG(employees),1) AS average_employee, industry, revenue
+SELECT industry
+, ROUND (AVG (maternity_leave_weeks)) AS avg_leave
 FROM fortune_companies
-GROUP BY industry
-ORDER BY average_employee DESC;
-
---IN TECH wich company offer better time off and maternity leave weeks? 
-SELECT company_name,paid_time_off_days,maternity_leave_weeks
-FROM fortune_companies
-WHERE industry = "Technology"
-ORDER BY paid_time_off_days DESC;
-
+WHERE healthcare_benefits > 0
+GROUP BY industry 
+HAVING avg_leave > 10
+ORDER BY avg_leave DESC;
 
 
