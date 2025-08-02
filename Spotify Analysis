@@ -28,44 +28,42 @@ time_signature integer NOT NULL );
 #Next, I explored the data using the following SQL. 
 ## I answered the following questions: 
 
--- the 10 artist and their songs most popular in the database
-
-SELECT Spotifydata.artist_name,Spotifydata.track_name,Spotifydata.popularity
+-- The name of the artist with more than 1 song in the list and how many songs have?
+SELECT artist_name
+,COUNT (artist_name) as total_songs 
 FROM BIT_DB.Spotifydata
-ORDER BY popularity DESC
-LIMIT 10;
+GROUP BY artist_name
+HAVING COUNT (artist_name) > 1
+ORDER BY total_songs DESC;
 
--- What is the average duration of songs per artist ?
-SELECT SUM(Spotifydata.duration_ms)/COUNT(Spotifydata.artist_name) as average
+-- Which is the average of loudness in the top 50? 
+
+SELECT (SUM (loudness)/ COUNT (artist_name))
 FROM BIT_DB.Spotifydata;
 
--- how many songs by artis are in the list and the avg danceability of that songs
-SELECT Spotifydata.artist_name,COUNT(Spotifydata.track_name) AS qty_songs, AVG(round(Spotifydata.danceability)) AS avgdance
+-- WHO are the TOP 5 most popular artist? 
+SELECT artist_name
+,ROUND (AVG (popularity)) AS avg_popu
 FROM BIT_DB.Spotifydata
-GROUP BY Spotifydata.artist_name
-ORDER BY qty_songs DESC;
+GROUP BY artist_name
+ORDER BY avg_popu DESC
+LIMIT 5;
 
--- wich artis with more quantity of songs have the most energy in songs? 
-SELECT DISTINCT Spotifydata.artist_name,COUNT(Spotifydata.track_name),SUM(Spotifydata.energy) AS totalenergy
+-- The artis with less energy in his/her songs? 
+
+SELECT artist_name
+,SUM (energy) AS Total_energy
 FROM BIT_DB.Spotifydata
-GROUP BY Spotifydata.artist_name
-HAVING count(Spotifydata.track_name) > 2
-ORDER BY totalenergy DESC;
-
--- What artist released the longest song? 
-
-SELECT Spotifydata.artist_name,Spotifydata.duration_ms 
-FROM BIT_DB.Spotifydata
-ORDER BY Spotifydata.duration_ms DESC
+GROUP BY artist_name
+ORDER BY Total_energy ASC
 LIMIT 1;
 
-SELECT * FROM BIT_DB.Spotifydata;
+-- How popular and danceability has the longest song? 
 
--- the less popular song
-
-SELECT Spotifydata.artist_name, Spotifydata.track_name,Spotifydata.popularity
-from BIT_DB.Spotifydata
-ORDER BY popularity ASC
+SELECT track_name
+,danceability
+,duration_ms
+,popularity
+FROM BIT_DB.Spotifydata
+ORDER BY duration_ms DESC
 LIMIT 1;
-
-
